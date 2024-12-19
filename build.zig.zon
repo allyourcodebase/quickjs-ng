@@ -1,0 +1,16 @@
+.{
+    .name = "quickjs-ng",
+    .version = "0.7.0",
+    .dependencies = .{
+        .@"quickjs-ng" = .{
+            .url = "git+https://github.com/quickjs-ng/quickjs?ref=v0.7.0#706ba05fa6fc984e07e6b8b47d028a8ac729fd13",
+            .hash = "1220c268865c5015ce612560139b95404f3c49eef966d74c5b634647ffdc1855c9cc",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "LICENSE.txt",
+        "README.md",
+    },
+}
