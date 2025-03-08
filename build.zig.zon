@@ -1,5 +1,6 @@
 .{
-    .name = "quickjs-ng",
+    .name = .quickjs_ng,
+    .fingerprint = 0xb2bca9faa72a0432,
     .version = "0.7.0",
     .dependencies = .{
         .@"quickjs-ng" = .{
