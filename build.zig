@@ -82,6 +82,11 @@ pub fn build(b: *std.Build) void {
         .target = b.graph.host,
         .optimize = .Debug,
     });
+
+    if (b.graph.host.result.os.tag == .windows) {
+        qjsc_host.stack_size = 8388608;
+    }
+
     qjsc_host.addCSourceFiles(.{
         .files = &.{"qjsc.c"},
         .flags = cflags,
