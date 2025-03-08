@@ -109,6 +109,12 @@ pub fn build(b: *std.Build) void {
     gen_repl.addArg("-m");
     gen_repl.addFileArg(csrc.path("repl.js"));
 
+    const gen_standalone = b.addRunArtifact(qjsc_host);
+    gen_standalone.addArg("-o");
+    const gen_standalone_out = gen_standalone.addOutputFileArg("standalone.c");
+    gen_standalone.addArg("-m");
+    gen_standalone.addFileArg(csrc.path("standalone.js"));
+
     const qjs = b.addExecutable(.{ .name = "qjs", .target = target, .optimize = optimize });
     qjs.addCSourceFiles(.{
         .files = &.{"qjs.c"},
@@ -120,11 +126,17 @@ pub fn build(b: *std.Build) void {
         .root = gen_repl_out.dirname(),
         .flags = cflags,
     });
+    qjs.addCSourceFiles(.{
+        .files = &.{"standalone.c"},
+        .root = gen_standalone_out.dirname(),
+        .flags = cflags,
+    });
     if (!include_stdlib) {
         addStdLib(qjs, cflags, csrc);
     }
     qjs.linkLibrary(libquickjs);
     addDefines(qjs, b);
     qjs.step.dependOn(&gen_repl.step);
+    qjs.step.dependOn(&gen_standalone.step);
     b.installArtifact(qjs);
 }
