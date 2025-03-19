@@ -4,8 +4,8 @@
     .version = "0.7.0",
     .dependencies = .{
         .@"quickjs-ng" = .{
-            .url = "git+https://github.com/quickjs-ng/quickjs/?ref=v0.8.0#482291286b9960c255ff8765d18a618cc87d89a2",
-            .hash = "122031dfbd898963d70cf7d75e645e7baf254a2106209542431e0658439fe879194d",
+            .url = "git+https://github.com/quickjs-ng/quickjs/?ref=v0.9.0#670492dd342dace0bb7bd6fbfbde8f0bc5651224",
+            .hash = "1220604c702c38f0a93b51bec43ae8b427916196daa7fc515e19d3188e5ff1b47327",
         },
     },
     .paths = .{
