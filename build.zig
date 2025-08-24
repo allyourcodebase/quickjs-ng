@@ -40,13 +40,16 @@ pub fn build(b: *std.Build) void {
         "libregexp.c",
         "libunicode.c",
         "cutils.c",
-        "libbf.c",
+        "xsum.c",
     };
 
-    const libquickjs = b.addStaticLibrary(.{
+    const libquickjs = b.addLibrary(.{
         .name = "quickjs",
-        .target = target,
-        .optimize = optimize,
+        .linkage = .static,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     libquickjs.addCSourceFiles(.{
         .files = libquickjs_source,
@@ -58,12 +61,17 @@ pub fn build(b: *std.Build) void {
         addStdLib(libquickjs, cflags, csrc);
     }
     libquickjs.linkLibC();
+    if (target.result.os.tag == .windows) {
+        libquickjs.stack_size = 8388608;
+    }
     b.installArtifact(libquickjs);
 
     const qjsc = b.addExecutable(.{
         .name = "qjsc",
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     qjsc.addCSourceFiles(.{
         .files = &.{"qjsc.c"},
@@ -79,8 +87,10 @@ pub fn build(b: *std.Build) void {
 
     const qjsc_host = b.addExecutable(.{
         .name = "qjsc-host",
-        .target = b.graph.host,
-        .optimize = .Debug,
+        .root_module = b.createModule(.{
+            .target = b.graph.host,
+            .optimize = .Debug,
+        }),
     });
 
     if (b.graph.host.result.os.tag == .windows) {
@@ -120,7 +130,13 @@ pub fn build(b: *std.Build) void {
     gen_standalone.addArg("-m");
     gen_standalone.addFileArg(csrc.path("standalone.js"));
 
-    const qjs = b.addExecutable(.{ .name = "qjs", .target = target, .optimize = optimize });
+    const qjs = b.addExecutable(.{
+        .name = "qjs",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
     qjs.addCSourceFiles(.{
         .files = &.{"qjs.c"},
         .flags = cflags,

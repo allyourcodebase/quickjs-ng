@@ -1,11 +1,12 @@
 .{
     .name = .quickjs_ng,
     .fingerprint = 0xb2bca9faa72a0432,
-    .version = "0.7.0",
+    .version = "0.10.1",
+    .minimum_zig_version = "0.14.0",
     .dependencies = .{
         .@"quickjs-ng" = .{
-            .url = "git+https://github.com/quickjs-ng/quickjs/?ref=v0.9.0#670492dd342dace0bb7bd6fbfbde8f0bc5651224",
-            .hash = "1220604c702c38f0a93b51bec43ae8b427916196daa7fc515e19d3188e5ff1b47327",
+            .url = "git+https://github.com/quickjs-ng/quickjs/?ref=v0.10.1#5299e09100b97a5dd0ea0e73fa5caa4aa0b2d97c",
+            .hash = "N-V-__8AAJ6ZOwAqRvY64qRhZ9KrT8YuUvtVQxBECJxJwPyd",
         },
     },
     .paths = .{
