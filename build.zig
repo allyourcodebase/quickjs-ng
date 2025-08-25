@@ -40,13 +40,16 @@ pub fn build(b: *std.Build) void {
         "libregexp.c",
         "libunicode.c",
         "cutils.c",
-        "libbf.c",
+        "xsum.c",
     };
 
-    const libquickjs = b.addStaticLibrary(.{
+    const libquickjs = b.addLibrary(.{
         .name = "quickjs",
-        .target = target,
-        .optimize = optimize,
+        .linkage = .static,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     libquickjs.addCSourceFiles(.{
         .files = libquickjs_source,
@@ -58,12 +61,17 @@ pub fn build(b: *std.Build) void {
         addStdLib(libquickjs, cflags, csrc);
     }
     libquickjs.linkLibC();
+    if (target.result.os.tag == .windows) {
+        libquickjs.stack_size = 8388608;
+    }
     b.installArtifact(libquickjs);
 
     const qjsc = b.addExecutable(.{
         .name = "qjsc",
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     qjsc.addCSourceFiles(.{
         .files = &.{"qjsc.c"},
@@ -79,9 +87,16 @@ pub fn build(b: *std.Build) void {
 
     const qjsc_host = b.addExecutable(.{
         .name = "qjsc-host",
-        .target = b.graph.host,
-        .optimize = .Debug,
+        .root_module = b.createModule(.{
+            .target = b.graph.host,
+            .optimize = .Debug,
+        }),
     });
+
+    if (b.graph.host.result.os.tag == .windows) {
+        qjsc_host.stack_size = 8388608;
+    }
+
     qjsc_host.addCSourceFiles(.{
         .files = &.{"qjsc.c"},
         .flags = cflags,
@@ -104,18 +119,28 @@ pub fn build(b: *std.Build) void {
     _ = b.addModule("quickjs-ng", .{ .root_source_file = header.getOutput() });
 
     const gen_repl = b.addRunArtifact(qjsc_host);
+    gen_repl.addArg("-N");
+    gen_repl.addArg("qjsc_repl");
     gen_repl.addArg("-o");
     const gen_repl_out = gen_repl.addOutputFileArg("repl.c");
     gen_repl.addArg("-m");
     gen_repl.addFileArg(csrc.path("repl.js"));
 
     const gen_standalone = b.addRunArtifact(qjsc_host);
+    gen_standalone.addArg("-N");
+    gen_standalone.addArg("qjsc_standalone");
     gen_standalone.addArg("-o");
     const gen_standalone_out = gen_standalone.addOutputFileArg("standalone.c");
     gen_standalone.addArg("-m");
     gen_standalone.addFileArg(csrc.path("standalone.js"));
 
-    const qjs = b.addExecutable(.{ .name = "qjs", .target = target, .optimize = optimize });
+    const qjs = b.addExecutable(.{
+        .name = "qjs",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
     qjs.addCSourceFiles(.{
         .files = &.{"qjs.c"},
         .flags = cflags,
