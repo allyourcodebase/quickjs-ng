@@ -119,12 +119,16 @@ pub fn build(b: *std.Build) void {
     _ = b.addModule("quickjs-ng", .{ .root_source_file = header.getOutput() });
 
     const gen_repl = b.addRunArtifact(qjsc_host);
+    gen_repl.addArg("-N");
+    gen_repl.addArg("qjsc_repl");
     gen_repl.addArg("-o");
     const gen_repl_out = gen_repl.addOutputFileArg("repl.c");
     gen_repl.addArg("-m");
     gen_repl.addFileArg(csrc.path("repl.js"));
 
     const gen_standalone = b.addRunArtifact(qjsc_host);
+    gen_standalone.addArg("-N");
+    gen_standalone.addArg("qjsc_standalone");
     gen_standalone.addArg("-o");
     const gen_standalone_out = gen_standalone.addOutputFileArg("standalone.c");
     gen_standalone.addArg("-m");
